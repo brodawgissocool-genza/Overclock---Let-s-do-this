@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Overclock - Create Account</title>
+    <style>
+        body { background: #121214; color: #fff; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .signup-card { background: #202024; padding: 30px; border-radius: 8px; border: 1px solid #29292e; width: 100%; max-width: 350px; }
+        input { width: 100%; padding: 10px; margin-bottom: 15px; box-sizing: border-box; background: #121214; border: 1px solid #29292e; color: #fff; border-radius: 4px; }
+        button { width: 100%; background: #ff4757; color: white; border: none; padding: 12px; border-radius: 4px; font-weight: bold; cursor: pointer; }
+        button:hover { background: #ff6b81; }
+    </style>
+</head>
+<body>
+
+    <div class="signup-card">
+        <h2>Join Overclock</h2>
+        <form onsubmit="submitForm(event)">
+            <input type="text" id="userInput" placeholder="Username" required>
+            <input type="number" id="passInput" placeholder="Numeric Password (Numbers Only)" required>
+            <button type="submit">Create Account</button>
+        </form>
+    </div>
+
+    <!-- Load the Supabase Client -->
+    <script src="https://jsdelivr.net"></script>
+    
+    <script>
+        // Connect to your specific database setup
+        const supabase = supabase.createClient("https://supabase.co", "sb_publishable_Yq4NUZWeSCJf1Xxy495opg__2UpmkWt");
+
+        // Your exact dynamic registration function
+        async function registerUser(typedUsername, typedPassword) {
+            const dynamicInt8Token = Math.floor(Math.random() * 8000000000000000) + 1000000000000000;
+            const dynamicUuidEmail = crypto.randomUUID(); 
+
+            const { data, error } = await supabase
+                .from('Profiles')
+                .insert([
+                    { 
+                        username: typedUsername,              
+                        password: parseInt(typedPassword),    
+                        userToken: dynamicInt8Token,          
+                        email: dynamicUuidEmail               
+                    }
+                ])
+                .select();
+
+            if (error) {
+                console.error("Signup failed:", error.message);
+                alert("Error: " + error.message);
+                return false;
+            }
+
+            console.log("Account successfully generated inside database layout!");
+            alert("Account created successfully!");
+            
+            // Optional: Save the token locally and redirect back to your index.html page
+            localStorage.setItem("overclock_session_token", dynamicInt8Token);
+            window.location.href = "index.html"; 
+            return true;
+        }
+
+        // Grabs the user input values on submit and passes them into the registerUser function
+        function submitForm(event) {
+            event.preventDefault(); 
+            const usernameValue = document.getElementById("userInput").value;
+            const passwordValue = document.getElementById("passInput").value;
+            
+            registerUser(usernameValue, passwordValue);
+        }
+    </script>
+</body>
+</html>
